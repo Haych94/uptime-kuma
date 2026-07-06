@@ -1,12 +1,11 @@
 <template>
     <transition name="slide-fade" appear>
         <div>
-            <h1 class="mb-3">
-                {{ $t("Status Pages") }}
-            </h1>
-
-            <div>
-                <router-link to="/add-status-page" class="btn btn-primary mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h1 class="mb-0">
+                    {{ $t("Status Pages") }}
+                </h1>
+                <router-link to="/add-status-page" class="btn btn-primary">
                     <font-awesome-icon icon="plus" />
                     {{ $t("New Status Page") }}
                 </router-link>

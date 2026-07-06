@@ -324,15 +324,16 @@ export default {
 
 .stat-tiles {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 16px;
 
     @media (max-width: 1100px) {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     @media (max-width: 600px) {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 }
 
@@ -341,6 +342,18 @@ export default {
     align-items: center;
     gap: 14px;
     padding: 18px 20px;
+    min-width: 0;
+
+    @media (max-width: 600px) {
+        padding: 14px;
+        gap: 10px;
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            font-size: 16px;
+        }
+    }
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     &:hover {

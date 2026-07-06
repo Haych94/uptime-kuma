@@ -292,26 +292,25 @@ footer {
 }
 
 .settings-content {
+    // Match the app-wide heading style (h2 scale + green period)
     .settings-content-header {
-        width: calc(100% + 20px);
-        border-bottom: 1px solid #dee2e6;
-        border-radius: 0 10px 0 0;
-        margin-top: -20px;
-        margin-right: -20px;
-        padding: 12.5px 1em;
-        font-size: 26px;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 4px 0 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid $light-border-color;
+
+        &::after {
+            content: ".";
+            color: $primary;
+        }
 
         .dark & {
-            background: $dark-header-bg;
-            border-bottom: 0;
+            border-bottom-color: $dark-border-color;
         }
 
         .mobile & {
-            padding: 15px 0 0 0;
-
-            .dark & {
-                background-color: transparent;
-            }
+            padding: 15px 0 12px;
         }
     }
 }

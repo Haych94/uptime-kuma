@@ -12,10 +12,10 @@
             </div>
         </div>
 
-        <!-- Desktop sidebar -->
-        <aside v-if="!$root.isMobile" class="sidebar">
+        <!-- Sidebar (all screen sizes; collapses to an icon rail when narrow) -->
+        <aside class="sidebar">
             <router-link to="/dashboard" class="sidebar-brand">
-                <object class="brand-icon" width="32" height="32" data="/icon.svg" />
+                <span class="brand-dot" />
                 <span class="title">{{ $t("Uptime Kuma") }}</span>
             </router-link>
 
@@ -34,6 +34,7 @@
                     to="/dashboard"
                     class="side-link"
                     :class="{ active: $route.path.startsWith('/dashboard') }"
+                    :title="$t('Dashboard')"
                 >
                     <font-awesome-icon icon="tachometer-alt" fixed-width />
                     <span>{{ $t("Dashboard") }}</span>
@@ -42,6 +43,7 @@
                     to="/manage-status-page"
                     class="side-link"
                     :class="{ active: $route.path.includes('status-page') }"
+                    :title="$t('Status Pages')"
                 >
                     <font-awesome-icon icon="stream" fixed-width />
                     <span>{{ $t("Status Pages") }}</span>
@@ -50,6 +52,7 @@
                     to="/maintenance"
                     class="side-link"
                     :class="{ active: $route.path.includes('maintenance') }"
+                    :title="$t('Maintenance')"
                 >
                     <font-awesome-icon icon="wrench" fixed-width />
                     <span>{{ $t("Maintenance") }}</span>
@@ -58,6 +61,7 @@
                     to="/settings/general"
                     class="side-link"
                     :class="{ active: $route.path.includes('settings') }"
+                    :title="$t('Settings')"
                 >
                     <font-awesome-icon icon="cog" fixed-width />
                     <span>{{ $t("Settings") }}</span>
@@ -65,13 +69,9 @@
             </nav>
 
             <div v-if="$root.loggedIn" class="sidebar-footer">
-                <a href="https://github.com/louislam/uptime-kuma/wiki" target="_blank" class="side-link">
-                    <font-awesome-icon icon="info-circle" fixed-width />
-                    <span>{{ $t("Help") }}</span>
-                </a>
                 <div class="user-row">
                     <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
-                    <span class="username">{{ $root.username == null ? $t("signedInDispDisabled") : $root.username }}</span>
+                    <span class="username">{{ displayName }}</span>
                     <button
                         v-if="$root.socket.token !== 'autoLogin'"
                         class="logout-btn"
@@ -84,42 +84,10 @@
             </div>
         </aside>
 
-        <!-- Mobile header -->
-        <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
-            <router-link to="/dashboard" class="d-flex align-items-center text-dark text-decoration-none">
-                <object class="bi" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title ms-2">Uptime Kuma</span>
-            </router-link>
-        </header>
-
-        <main :class="{ 'has-sidebar': !$root.isMobile }">
+        <main class="has-sidebar">
             <router-view v-if="$root.loggedIn" />
             <Login v-if="!$root.loggedIn && $root.allowLoginDialog" />
         </main>
-
-        <!-- Mobile Only -->
-        <div v-if="$root.isMobile" style="width: 100%; height: calc(60px + env(safe-area-inset-bottom))" />
-        <nav v-if="$root.isMobile && $root.loggedIn" class="bottom-nav">
-            <router-link to="/dashboard" class="nav-link">
-                <div><font-awesome-icon icon="tachometer-alt" /></div>
-                {{ $t("Home") }}
-            </router-link>
-
-            <router-link to="/list" class="nav-link">
-                <div><font-awesome-icon icon="list" /></div>
-                {{ $t("List") }}
-            </router-link>
-
-            <router-link to="/add" class="nav-link">
-                <div><font-awesome-icon icon="plus" /></div>
-                {{ $t("Add") }}
-            </router-link>
-
-            <router-link to="/settings" class="nav-link">
-                <div><font-awesome-icon icon="cog" /></div>
-                {{ $t("Settings") }}
-            </router-link>
-        </nav>
 
         <button
             v-if="numActiveToasts != 0"
@@ -167,6 +135,23 @@ export default {
                 return false;
             }
         },
+
+        /**
+         * Friendly first name for the sidebar footer, derived from the
+         * username: strips any email domain, takes the first word-ish
+         * segment, drops trailing digits and capitalizes it.
+         * e.g. "haych710@gmail.com" -> "Haych"
+         * @returns {string} Display name, or the disabled-auth label.
+         */
+        displayName() {
+            if (this.$root.username == null) {
+                return this.$t("signedInDispDisabled");
+            }
+            const local = this.$root.username.split("@")[0];
+            let name = local.split(/[\s._-]+/)[0];
+            name = name.replace(/\d+$/, "") || local;
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        },
     },
 
     watch: {},
@@ -207,7 +192,7 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/vars.scss";
 
-$sidebar-width: 244px;
+$sidebar-width: 268px;
 
 // UptimeRobot-style dark left sidebar
 .sidebar {
@@ -219,7 +204,7 @@ $sidebar-width: 244px;
     background-color: #171d28;
     display: flex;
     flex-direction: column;
-    padding: 20px 14px;
+    padding: 28px 16px 16px;
     z-index: 1000;
     overflow-y: auto;
 }
@@ -227,19 +212,24 @@ $sidebar-width: 244px;
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 8px 18px;
+    gap: 8px;
+    padding: 0 10px;
+    margin-bottom: 34px;
     text-decoration: none;
 
-    .title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #fff;
+    .brand-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background-color: $primary;
+        flex-shrink: 0;
+    }
 
-        &::after {
-            content: ".";
-            color: $primary;
-        }
+    .title {
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.4px;
+        color: #fff;
     }
 }
 
@@ -250,43 +240,45 @@ $sidebar-width: 244px;
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
+// Small text, small icons, generous padding — tall airy rows like UptimeRobot
 .side-link {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
+    gap: 16px;
+    padding: 15px 18px;
     border-radius: 10px;
     color: #97a0b0;
     text-decoration: none;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 13px;
+    line-height: 1.2;
     transition:
         background-color 0.15s,
         color 0.15s;
 
     svg {
-        font-size: 17px;
-        color: #8b93a1;
+        font-size: 15px;
+        color: #77808f;
         transition: color 0.15s;
     }
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        background-color: rgba(9, 13, 20, 0.35);
+        color: #dfe5ec;
 
         svg {
-            color: #cdd4de;
+            color: #aeb7c5;
         }
     }
 
+    // Active row is darker than the sidebar, like UptimeRobot
     &.router-link-exact-active,
     &.active {
-        background-color: rgba(255, 255, 255, 0.07);
+        background-color: #10151d;
         color: #fff;
-        font-weight: 600;
 
         svg {
             color: $primary;
@@ -353,6 +345,84 @@ main.has-sidebar {
     padding: 28px 20px;
 }
 
+// Collapse to an icon-only rail on narrow screens (UptimeRobot style).
+// Applies at every width below 1100px, including phones.
+$rail-width: 68px;
+
+@media (max-width: 1100px) {
+    .sidebar {
+        width: $rail-width;
+        padding: 20px 10px 14px;
+        align-items: center;
+    }
+
+    .sidebar-brand {
+        padding: 0;
+        margin-bottom: 26px;
+
+        .brand-dot {
+            width: 26px;
+            height: 26px;
+        }
+
+        .title {
+            display: none;
+        }
+    }
+
+    .update-btn {
+        display: none;
+    }
+
+    .sidebar-nav {
+        width: 100%;
+    }
+
+    .side-link {
+        justify-content: center;
+        gap: 0;
+        padding: 15px 0;
+
+        span {
+            display: none;
+        }
+
+        svg {
+            font-size: 17px;
+        }
+    }
+
+    .sidebar-footer {
+        width: 100%;
+
+        .user-row {
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0 0;
+
+            .profile-pic {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+
+            .username {
+                display: none;
+            }
+        }
+    }
+
+    main.has-sidebar {
+        margin-left: $rail-width;
+    }
+}
+
+@media (max-width: 767.98px) {
+    main.has-sidebar {
+        padding: 18px 12px;
+    }
+}
+
 .nav-link {
     &:hover {
         background-color: $primary;
@@ -370,44 +440,6 @@ main.has-sidebar {
 
     &.status-page {
         background-color: rgba(255, 255, 255, 0.1);
-    }
-}
-
-.bottom-nav {
-    z-index: 1000;
-    position: fixed;
-    bottom: 0;
-    height: calc(60px + env(safe-area-inset-bottom));
-    width: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow:
-        0 15px 47px 0 rgba(0, 0, 0, 0.05),
-        0 5px 14px 0 rgba(0, 0, 0, 0.05);
-    text-align: center;
-    white-space: nowrap;
-    padding: 0 10px env(safe-area-inset-bottom);
-
-    a {
-        text-align: center;
-        width: 25%;
-        display: inline-block;
-        height: 100%;
-        padding: 8px 10px 0;
-        font-size: 13px;
-        color: #c1c1c1;
-        overflow: hidden;
-        text-decoration: none;
-
-        &.router-link-exact-active,
-        &.active {
-            color: $primary;
-            font-weight: bold;
-        }
-
-        div {
-            font-size: 20px;
-        }
     }
 }
 
@@ -507,20 +539,6 @@ main {
     }
 }
 
-.dark {
-    header {
-        background-color: $dark-header-bg;
-        border-bottom-color: $dark-header-bg !important;
-
-        span {
-            color: #f0f6fc;
-        }
-    }
-
-    .bottom-nav {
-        background-color: $dark-bg;
-    }
-}
 
 .clear-all-toast-btn {
     position: fixed;
