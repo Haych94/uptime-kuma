@@ -12,110 +12,77 @@
             </div>
         </div>
 
-        <!-- Desktop header -->
-        <header v-if="!$root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
-            <router-link
-                to="/dashboard"
-                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none"
-            >
-                <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title">{{ $t("Uptime Kuma") }}</span>
+        <!-- Desktop sidebar -->
+        <aside v-if="!$root.isMobile" class="sidebar">
+            <router-link to="/dashboard" class="sidebar-brand">
+                <object class="brand-icon" width="32" height="32" data="/icon.svg" />
+                <span class="title">{{ $t("Uptime Kuma") }}</span>
             </router-link>
 
             <a
                 v-if="hasNewVersion"
                 target="_blank"
                 href="https://github.com/louislam/uptime-kuma/releases"
-                class="btn btn-primary me-3"
+                class="btn btn-primary update-btn"
             >
                 <font-awesome-icon icon="arrow-alt-circle-up" />
                 {{ $t("New Update") }}
             </a>
 
-            <ul class="nav nav-pills">
-                <li v-if="$root.loggedIn" class="nav-item me-2">
-                    <router-link to="/manage-status-page" class="nav-link">
-                        <font-awesome-icon icon="stream" />
-                        {{ $t("Status Pages") }}
-                    </router-link>
-                </li>
-                <li v-if="$root.loggedIn" class="nav-item me-2">
-                    <router-link to="/dashboard" class="nav-link">
-                        <font-awesome-icon icon="tachometer-alt" />
-                        {{ $t("Dashboard") }}
-                    </router-link>
-                </li>
-                <li v-if="$root.loggedIn" class="nav-item">
-                    <div class="dropdown dropdown-profile-pic">
-                        <div class="nav-link" data-bs-toggle="dropdown">
-                            <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
-                            <font-awesome-icon icon="angle-down" />
-                        </div>
+            <nav v-if="$root.loggedIn" class="sidebar-nav">
+                <router-link
+                    to="/dashboard"
+                    class="side-link"
+                    :class="{ active: $route.path.startsWith('/dashboard') }"
+                >
+                    <font-awesome-icon icon="tachometer-alt" fixed-width />
+                    <span>{{ $t("Dashboard") }}</span>
+                </router-link>
+                <router-link
+                    to="/manage-status-page"
+                    class="side-link"
+                    :class="{ active: $route.path.includes('status-page') }"
+                >
+                    <font-awesome-icon icon="stream" fixed-width />
+                    <span>{{ $t("Status Pages") }}</span>
+                </router-link>
+                <router-link
+                    to="/maintenance"
+                    class="side-link"
+                    :class="{ active: $route.path.includes('maintenance') }"
+                >
+                    <font-awesome-icon icon="wrench" fixed-width />
+                    <span>{{ $t("Maintenance") }}</span>
+                </router-link>
+                <router-link
+                    to="/settings/general"
+                    class="side-link"
+                    :class="{ active: $route.path.includes('settings') }"
+                >
+                    <font-awesome-icon icon="cog" fixed-width />
+                    <span>{{ $t("Settings") }}</span>
+                </router-link>
+            </nav>
 
-                        <!-- Header's Dropdown Menu -->
-                        <ul class="dropdown-menu">
-                            <!-- Username -->
-                            <li>
-                                <i18n-t
-                                    v-if="$root.username != null"
-                                    tag="span"
-                                    keypath="signedInDisp"
-                                    class="dropdown-item-text"
-                                >
-                                    <strong>{{ $root.username }}</strong>
-                                </i18n-t>
-                                <span v-if="$root.username == null" class="dropdown-item-text">
-                                    {{ $t("signedInDispDisabled") }}
-                                </span>
-                            </li>
-
-                            <li><hr class="dropdown-divider" /></li>
-
-                            <!-- Functions -->
-                            <li>
-                                <router-link
-                                    to="/maintenance"
-                                    class="dropdown-item"
-                                    :class="{ active: $route.path.includes('manage-maintenance') }"
-                                >
-                                    <font-awesome-icon icon="wrench" />
-                                    {{ $t("Maintenance") }}
-                                </router-link>
-                            </li>
-
-                            <li>
-                                <router-link
-                                    to="/settings/general"
-                                    class="dropdown-item"
-                                    :class="{ active: $route.path.includes('settings') }"
-                                >
-                                    <font-awesome-icon icon="cog" />
-                                    {{ $t("Settings") }}
-                                </router-link>
-                            </li>
-
-                            <li>
-                                <a
-                                    href="https://github.com/louislam/uptime-kuma/wiki"
-                                    class="dropdown-item"
-                                    target="_blank"
-                                >
-                                    <font-awesome-icon icon="info-circle" />
-                                    {{ $t("Help") }}
-                                </a>
-                            </li>
-
-                            <li v-if="$root.loggedIn && $root.socket.token !== 'autoLogin'">
-                                <button class="dropdown-item" @click="$root.logout">
-                                    <font-awesome-icon icon="sign-out-alt" />
-                                    {{ $t("Logout") }}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </header>
+            <div v-if="$root.loggedIn" class="sidebar-footer">
+                <a href="https://github.com/louislam/uptime-kuma/wiki" target="_blank" class="side-link">
+                    <font-awesome-icon icon="info-circle" fixed-width />
+                    <span>{{ $t("Help") }}</span>
+                </a>
+                <div class="user-row">
+                    <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
+                    <span class="username">{{ $root.username == null ? $t("signedInDispDisabled") : $root.username }}</span>
+                    <button
+                        v-if="$root.socket.token !== 'autoLogin'"
+                        class="logout-btn"
+                        :title="$t('Logout')"
+                        @click="$root.logout"
+                    >
+                        <font-awesome-icon icon="sign-out-alt" />
+                    </button>
+                </div>
+            </div>
+        </aside>
 
         <!-- Mobile header -->
         <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
@@ -125,7 +92,7 @@
             </router-link>
         </header>
 
-        <main>
+        <main :class="{ 'has-sidebar': !$root.isMobile }">
             <router-view v-if="$root.loggedIn" />
             <Login v-if="!$root.loggedIn && $root.allowLoginDialog" />
         </main>
@@ -239,6 +206,152 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/vars.scss";
+
+$sidebar-width: 244px;
+
+// UptimeRobot-style dark left sidebar
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: $sidebar-width;
+    height: 100vh;
+    background-color: #171d28;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 18px;
+    text-decoration: none;
+
+    .title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+
+        &::after {
+            content: ".";
+            color: $primary;
+        }
+    }
+}
+
+.update-btn {
+    margin-bottom: 12px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #97a0b0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition:
+        background-color 0.15s,
+        color 0.15s;
+
+    svg {
+        font-size: 17px;
+        color: #8b93a1;
+        transition: color 0.15s;
+    }
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #fff;
+
+        svg {
+            color: #cdd4de;
+        }
+    }
+
+    &.router-link-exact-active,
+    &.active {
+        background-color: rgba(255, 255, 255, 0.07);
+        color: #fff;
+        font-weight: 600;
+
+        svg {
+            color: $primary;
+        }
+    }
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    .user-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+
+        .profile-pic {
+            width: 30px;
+            height: 30px;
+            border-radius: 50rem;
+            background-color: $primary;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .username {
+            color: #cdd4de;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #8b93a1;
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+
+            &:hover {
+                color: #fff;
+                background-color: rgba(255, 255, 255, 0.08);
+            }
+        }
+    }
+}
+
+main.has-sidebar {
+    margin-left: $sidebar-width;
+    min-height: 100vh;
+    padding: 28px 20px;
+}
 
 .nav-link {
     &:hover {

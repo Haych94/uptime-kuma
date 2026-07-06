@@ -1,43 +1,57 @@
 <template>
     <transition ref="tableContainer" name="slide-fade" appear>
         <div v-if="$route.name === 'DashboardHome'">
-            <h1 class="mb-3">
-                {{ $t("Quick Stats") }}
-            </h1>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h1 class="mb-0">
+                    {{ $t("Quick Stats") }}
+                </h1>
+                <router-link to="/add" class="btn btn-primary">
+                    <font-awesome-icon icon="plus" />
+                    {{ $t("Add New Monitor") }}
+                </router-link>
+            </div>
 
-            <div class="shadow-box big-padding text-center mb-3">
-                <div class="row">
-                    <div class="col">
-                        <h3>{{ $t("Up") }}</h3>
-                        <span class="num" :class="$root.stats.up === 0 && 'text-secondary'">
-                            {{ $root.stats.up }}
-                        </span>
+            <div class="stat-tiles mb-4">
+                <div class="stat-tile shadow-box" :class="{ active: $root.stats.up > 0 }">
+                    <div class="icon up"><font-awesome-icon icon="heartbeat" /></div>
+                    <div class="tile-body">
+                        <span class="tile-num" :class="$root.stats.up === 0 && 'muted'">{{ $root.stats.up }}</span>
+                        <span class="tile-label">{{ $t("Up") }}</span>
                     </div>
-                    <div class="col">
-                        <h3>{{ $t("Down") }}</h3>
-                        <span class="num" :class="$root.stats.down > 0 ? 'text-danger' : 'text-secondary'">
-                            {{ $root.stats.down }}
-                        </span>
+                </div>
+                <div class="stat-tile shadow-box" :class="{ active: $root.stats.down > 0 }">
+                    <div class="icon down"><font-awesome-icon icon="times-circle" /></div>
+                    <div class="tile-body">
+                        <span class="tile-num" :class="$root.stats.down > 0 ? 'text-danger' : 'muted'">{{ $root.stats.down }}</span>
+                        <span class="tile-label">{{ $t("Down") }}</span>
                     </div>
-                    <div class="col">
-                        <h3>{{ $t("Maintenance") }}</h3>
-                        <span class="num" :class="$root.stats.maintenance > 0 ? 'text-maintenance' : 'text-secondary'">
-                            {{ $root.stats.maintenance }}
-                        </span>
+                </div>
+                <div class="stat-tile shadow-box" :class="{ active: $root.stats.maintenance > 0 }">
+                    <div class="icon maintenance"><font-awesome-icon icon="wrench" /></div>
+                    <div class="tile-body">
+                        <span class="tile-num" :class="$root.stats.maintenance > 0 ? 'text-maintenance' : 'muted'">{{ $root.stats.maintenance }}</span>
+                        <span class="tile-label">{{ $t("Maintenance") }}</span>
                     </div>
-                    <div class="col">
-                        <h3>{{ $t("Unknown") }}</h3>
-                        <span class="num text-secondary">{{ $root.stats.unknown }}</span>
+                </div>
+                <div class="stat-tile shadow-box">
+                    <div class="icon unknown"><font-awesome-icon icon="question-circle" /></div>
+                    <div class="tile-body">
+                        <span class="tile-num muted">{{ $root.stats.unknown }}</span>
+                        <span class="tile-label">{{ $t("Unknown") }}</span>
                     </div>
-                    <div class="col">
-                        <h3>{{ $t("pauseDashboardHome") }}</h3>
-                        <span class="num text-secondary">{{ $root.stats.pause }}</span>
+                </div>
+                <div class="stat-tile shadow-box">
+                    <div class="icon pause"><font-awesome-icon icon="pause" /></div>
+                    <div class="tile-body">
+                        <span class="tile-num muted">{{ $root.stats.pause }}</span>
+                        <span class="tile-label">{{ $t("pauseDashboardHome") }}</span>
                     </div>
                 </div>
             </div>
 
             <div class="shadow-box table-shadow-box table-wrapper">
-                <div class="mb-3 text-end">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h2 class="mb-0 events-title">{{ $t("Events") }}</h2>
                     <button
                         class="btn btn-sm btn-outline-danger"
                         :disabled="clearingAllEvents"
@@ -308,14 +322,83 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/vars";
 
-.num {
-    font-size: 30px;
-    color: $primary;
-    font-weight: bold;
-    display: block;
+.stat-tiles {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.shadow-box {
+.stat-tile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    .icon {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+
+        &.up {
+            color: $primary;
+            background: rgba(59, 214, 113, 0.13);
+        }
+        &.down {
+            color: $danger;
+            background: rgba(220, 53, 69, 0.13);
+        }
+        &.maintenance {
+            color: $maintenance;
+            background: rgba(23, 71, 245, 0.12);
+        }
+        &.unknown,
+        &.pause {
+            color: $secondary-text;
+            background: rgba(139, 147, 161, 0.15);
+        }
+    }
+
+    .tile-body {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
+
+    .tile-num {
+        font-size: 26px;
+        font-weight: 700;
+
+        &.muted {
+            color: $secondary-text;
+        }
+    }
+
+    .tile-label {
+        font-size: 13px;
+        color: $secondary-text;
+        margin-top: 2px;
+    }
+}
+
+.shadow-box:not(.stat-tile) {
     padding: 20px;
 }
 
@@ -324,6 +407,12 @@ table {
 
     tr {
         transition: all ease-in-out 0.2ms;
+    }
+
+    td {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        vertical-align: middle;
     }
 
     @media (max-width: 550px) {

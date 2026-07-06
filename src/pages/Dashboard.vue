@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid">
         <div class="row">
-            <div v-if="!$root.isMobile" class="col-12 col-md-5 col-xl-4 ps-0">
+            <div v-if="!$root.isMobile && showMonitorList" class="col-12 col-md-5 col-xl-4 ps-0">
                 <div>
                     <router-link to="/add" class="btn btn-primary mb-3">
                         <font-awesome-icon icon="plus" />
@@ -11,7 +11,11 @@
                 <MonitorList :scrollbar="true" />
             </div>
 
-            <div ref="container" class="col-12 col-md-7 col-xl-8 mb-3 gx-0">
+            <div
+                ref="container"
+                class="mb-3 gx-0"
+                :class="showMonitorList ? 'col-12 col-md-7 col-xl-8' : 'col-12'"
+            >
                 <!-- Add :key to disable vue router re-use the same component -->
                 <router-view :key="$route.fullPath" :calculatedHeight="height" />
             </div>
@@ -30,6 +34,17 @@ export default {
         return {
             height: 0,
         };
+    },
+    computed: {
+        /**
+         * Show the two-pane layout with the monitor list only when viewing a
+         * specific monitor's details, so you can still navigate between monitors.
+         * The dashboard home and all other routes render as full-width pages.
+         * @returns {boolean} True if the monitor list pane should be shown.
+         */
+        showMonitorList() {
+            return /^\/dashboard\/\d+/.test(this.$route.path);
+        },
     },
     mounted() {
         this.height = this.$refs.container.offsetHeight;

@@ -4,6 +4,7 @@
 
 #app {
     font-family:
+        "Inter",
         "Twemoji Country Flags",
         BlinkMacSystemFont,
         segoe ui,
@@ -16,22 +17,52 @@
         segoe ui emoji,
         segoe ui symbol,
         noto color emoji;
+    font-size: 15px;
+}
+
+// UptimeRobot-style off-white app canvas (light mode only)
+body:not(.dark) {
+    background-color: $light-bg;
+}
+
+// Tables — quiet, uppercase column headers
+.table thead th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: $secondary-text;
 }
 
 h1 {
-    font-size: 32px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+
+    // UptimeRobot-style signature: headings end with a green period
+    &::after {
+        content: ".";
+        color: $primary;
+    }
 }
 
 h2 {
-    font-size: 26px;
+    font-size: 20px;
+    font-weight: 700;
+
+    &::after {
+        content: ".";
+        color: $primary;
+    }
 }
 
 textarea.form-control {
-    border-radius: 19px;
+    border-radius: 8px;
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
+    height: 8px;
 }
 
 .bg-maintenance {
@@ -53,7 +84,7 @@ textarea.form-control {
 }
 
 .list-group {
-    border-radius: 0.75rem;
+    border-radius: 12px;
 
     .dark & {
         .list-group-item {
@@ -83,8 +114,12 @@ optgroup {
 
 // Scrollbar
 ::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: rgba(0, 0, 0, 0.18);
     border-radius: 20px;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.28);
+    }
 }
 
 .modal {
@@ -92,12 +127,14 @@ optgroup {
 }
 
 .modal-content {
-    border-radius: 1rem;
-    box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(15, 20, 30, 0.2);
 
     .dark & {
-        box-shadow: 0 15px 70px rgb(0 0 0);
+        box-shadow: 0 20px 60px rgb(0 0 0 / 60%);
         background-color: $dark-bg;
+        border: 1px solid $dark-border-color;
     }
 }
 
@@ -108,9 +145,15 @@ optgroup {
 
 .shadow-box {
     //overflow: hidden;   // Forget why add this, but multiple select hide by this
-    box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 6px 20px rgba(0, 0, 0, 0.05);
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 12px;
+
+    body:not(.dark) & {
+        border: 1px solid $light-border-color;
+    }
 
     &.big-padding {
         padding: 20px;
@@ -118,12 +161,24 @@ optgroup {
 }
 
 .btn {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 8px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 8px;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.1s ease;
+
+    &:active {
+        transform: translateY(1px);
+    }
 }
 
 .btn-sm {
-    border-radius: 25px;
+    border-radius: 8px;
+    padding: 4px 12px;
 }
 
 .btn-primary {
@@ -134,8 +189,12 @@ optgroup {
     &:focus,
     &.active {
         color: white;
-        background-color: $highlight;
-        border-color: $highlight;
+        background-color: darken($primary, 6%);
+        border-color: darken($primary, 6%);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 3px rgba(59, 214, 113, 0.35);
     }
 
     .dark & {
@@ -182,10 +241,37 @@ optgroup {
     background-color: #161b22;
 }
 
+// Forms — one consistent shape + branded focus ring
+.form-control,
+.form-select {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(59, 214, 113, 0.15);
+}
+
+.form-check-input:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(59, 214, 113, 0.15);
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 13px;
+}
+
 .btn-outline-normal {
     padding: 4px 10px;
     border: 1px solid #ced4da;
-    border-radius: 25px;
+    border-radius: 8px;
     background-color: transparent;
 
     .dark & {
@@ -251,7 +337,7 @@ optgroup {
 
 // Dark Theme override here
 .dark {
-    background-color: #090c10;
+    background-color: #0f141d;
     color: $dark-font-color;
 
     mark,
@@ -267,6 +353,7 @@ optgroup {
     .shadow-box {
         &:not(.alert) {
             background-color: $dark-bg;
+            border: 1px solid $dark-border-color;
         }
     }
 
@@ -322,9 +409,15 @@ optgroup {
         border-color: $dark-border-color;
     }
 
+    .form-control:focus,
+    .form-select:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(59, 214, 113, 0.18);
+    }
+
     .form-control:disabled,
     .form-control[readonly] {
-        background-color: #232f3b;
+        background-color: #232c3a;
         opacity: 1;
     }
 
@@ -407,7 +500,7 @@ optgroup {
             }
 
             &.active {
-                background-color: $dark-bg2;
+                background-color: rgba(59, 214, 113, 0.1);
             }
         }
     }
@@ -498,7 +591,7 @@ optgroup {
     .item {
         display: block;
         text-decoration: none;
-        padding: 13px 15px 10px 15px;
+        padding: 16px 16px 14px 16px;
         border-radius: 10px;
         transition: all ease-in-out 0.15s;
 
@@ -516,7 +609,7 @@ optgroup {
         }
 
         &.active {
-            background-color: #cdf8f4;
+            background-color: rgba(59, 214, 113, 0.12);
         }
         .tags {
             // Removes margin to line up tags list with uptime percentage
