@@ -224,7 +224,7 @@
 
             <!-- Sidebar Footer -->
             <div class="sidebar-footer">
-                <button class="btn btn-success me-2" :disabled="loading" data-testid="save-button" @click="save">
+                <button class="btn btn-primary me-2" :disabled="loading" data-testid="save-button" @click="save">
                     <font-awesome-icon icon="save" />
                     {{ $t("Save") }}
                 </button>
@@ -1695,7 +1695,8 @@ footer {
 }
 
 .dark .shadow-box {
-    background-color: #0d1117;
+    background-color: $dark-bg;
+    border: 1px solid $dark-border-color;
 }
 
 .status-maintenance {
