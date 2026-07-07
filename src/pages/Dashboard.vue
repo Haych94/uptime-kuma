@@ -37,13 +37,13 @@ export default {
     },
     computed: {
         /**
-         * Show the two-pane layout with the monitor list only when viewing a
-         * specific monitor's details, so you can still navigate between monitors.
-         * The dashboard home and all other routes render as full-width pages.
-         * @returns {boolean} True if the monitor list pane should be shown.
+         * The dashboard home now renders its own full-width monitor list, so the
+         * old two-pane left list is no longer needed anywhere — every route
+         * (including monitor details) renders full-width.
+         * @returns {boolean} Always false.
          */
         showMonitorList() {
-            return /^\/dashboard\/\d+/.test(this.$route.path);
+            return false;
         },
     },
     mounted() {

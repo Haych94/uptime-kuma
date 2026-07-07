@@ -1,6 +1,10 @@
 <template>
     <transition name="slide-fade" appear>
         <div v-if="monitor">
+            <router-link to="/dashboard" class="back-link">
+                <font-awesome-icon icon="chevron-down" class="back-chevron" />
+                {{ $t("Dashboard") }}
+            </router-link>
             <router-link v-if="group !== ''" :to="monitorURL(monitor.parent)">
                 {{ group }}
             </router-link>
@@ -963,6 +967,38 @@ table {
 
     body:not(.dark) &.table-hover > tbody > tr:hover > td {
         background-color: rgba(0, 0, 0, 0.035);
+    }
+}
+
+// UptimeRobot-style "‹ back" link
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $secondary-text;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+
+    .back-chevron {
+        transform: rotate(90deg);
+        font-size: 12px;
+    }
+
+    &:hover {
+        color: $link-color;
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .dark &:hover {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.05);
     }
 }
 
