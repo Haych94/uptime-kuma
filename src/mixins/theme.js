@@ -67,6 +67,13 @@ export default {
     watch: {
         "$route.fullPath"(path) {
             this.path = path;
+
+            // Reset the forced status-page theme once we navigate to a normal
+            // app page, otherwise the dashboard gets stuck following the theme
+            // of a status page that was entered directly (see Entry.vue).
+            if (this.forceStatusPageTheme && path !== "/" && !path.startsWith("/status")) {
+                this.forceStatusPageTheme = false;
+            }
         },
 
         userTheme(to, from) {

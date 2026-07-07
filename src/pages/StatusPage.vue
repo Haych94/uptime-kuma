@@ -1497,8 +1497,8 @@ export default {
 @import "../assets/vars.scss";
 
 .overall-status {
-    font-weight: bold;
-    font-size: 25px;
+    font-weight: 700;
+    font-size: 22px;
 
     .ok {
         color: $primary;
@@ -1530,6 +1530,7 @@ h1 {
 
     &.edit {
         margin-left: 300px;
+        padding: 24px 24px 40px 40px;
     }
 }
 
@@ -1548,7 +1549,7 @@ h1 {
     }
 
     .sidebar-body {
-        padding: 0 10px 10px 10px;
+        padding: 6px 18px 18px 18px;
         overflow-x: hidden;
         overflow-y: auto;
         height: calc(100% - 70px);
@@ -1557,7 +1558,7 @@ h1 {
     .sidebar-footer {
         border-top: 1px solid #ededed;
         border-right: 1px solid #ededed;
-        padding: 10px;
+        padding: 12px 18px;
         width: 300px;
         height: 70px;
         position: fixed;
