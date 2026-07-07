@@ -145,25 +145,42 @@
                 </div>
             </div>
 
-            <div class="shadow-box">
-                <div class="row">
-                    <div class="col-md-8">
-                        <HeartbeatBar :monitor-id="monitor.id" />
-                        <span class="word">
-                            {{ $t("checkEverySecond", [monitor.interval]) }} ({{
-                                secondsToHumanReadableFormat(monitor.interval)
-                            }})
-                        </span>
+            <!-- UptimeRobot-style summary cards -->
+            <div class="row g-3 summary-cards">
+                <div class="col-12 col-md-4">
+                    <div class="shadow-box summary-card">
+                        <div class="s-label">{{ $t("Current status") }}</div>
+                        <div class="s-value">
+                            <span class="badge rounded-pill" :class="'bg-' + status.color" data-testid="monitor-status">
+                                {{ status.text }}
+                            </span>
+                        </div>
+                        <div class="s-sub">
+                            {{ $t("checkEverySecond", [monitor.interval]) }}
+                            ({{ secondsToHumanReadableFormat(monitor.interval) }})
+                        </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <span
-                            class="badge rounded-pill"
-                            :class="'bg-' + status.color"
-                            style="font-size: 18px; padding: 8px 20px"
-                            data-testid="monitor-status"
-                        >
-                            {{ status.text }}
-                        </span>
+                </div>
+
+                <div v-if="monitor.type !== 'group'" class="col-12 col-md-4">
+                    <div class="shadow-box summary-card">
+                        <div class="s-label">{{ pingTitle() }}</div>
+                        <div class="s-value">
+                            <a href="#" @click.prevent="showPingChartBox = !showPingChartBox">
+                                <CountUp :value="ping" />
+                            </a>
+                        </div>
+                        <div class="s-sub">{{ pingTitle(true) }}: <CountUp :value="avgPing" /></div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="shadow-box summary-card">
+                        <div class="s-label">{{ $t("Last 24 hours") }}</div>
+                        <div class="s-heartbeat">
+                            <HeartbeatBar size="small" :monitor-id="monitor.id" />
+                        </div>
+                        <div class="s-sub"><Uptime :monitor="monitor" type="24" /> {{ $t("Uptime") }}</div>
                     </div>
                 </div>
             </div>
@@ -207,29 +224,6 @@
             <!-- Stats -->
             <div class="shadow-box big-padding text-center stats">
                 <div class="row">
-                    <div
-                        v-if="monitor.type !== 'group'"
-                        class="col-12 col-sm col row d-flex align-items-center d-sm-block"
-                    >
-                        <h4 class="col-4 col-sm-12">{{ pingTitle() }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("Current") }})</p>
-                        <span class="col-4 col-sm-12 num">
-                            <a href="#" @click.prevent="showPingChartBox = !showPingChartBox">
-                                <CountUp :value="ping" />
-                            </a>
-                        </span>
-                    </div>
-                    <div
-                        v-if="monitor.type !== 'group'"
-                        class="col-12 col-sm col row d-flex align-items-center d-sm-block"
-                    >
-                        <h4 class="col-4 col-sm-12">{{ pingTitle(true) }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("hours", 24) }})</p>
-                        <span class="col-4 col-sm-12 num">
-                            <CountUp :value="avgPing" />
-                        </span>
-                    </div>
-
                     <!-- Uptime (24-hour) -->
                     <div class="col-12 col-sm col row d-flex align-items-center d-sm-block">
                         <h4 class="col-4 col-sm-12">{{ $t("Uptime") }}</h4>
@@ -969,6 +963,56 @@ table {
 
     body:not(.dark) &.table-hover > tbody > tr:hover > td {
         background-color: rgba(0, 0, 0, 0.035);
+    }
+}
+
+// UptimeRobot-style summary cards
+.summary-cards {
+    margin-top: 20px;
+}
+
+.summary-card {
+    height: 100%;
+    margin-top: 0 !important;
+    padding: 20px !important;
+
+    .s-label {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: $secondary-text;
+        margin-bottom: 12px;
+    }
+
+    .s-value {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        line-height: 1.3;
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .badge {
+            font-size: 15px;
+            padding: 6px 18px;
+        }
+
+        .dark & a {
+            color: #fff;
+        }
+    }
+
+    .s-heartbeat {
+        margin: 2px 0 12px;
+    }
+
+    .s-sub {
+        font-size: 13px;
+        color: $secondary-text;
     }
 }
 
