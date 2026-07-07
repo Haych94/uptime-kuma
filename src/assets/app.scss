@@ -678,7 +678,7 @@ optgroup {
 
 [contenteditable="true"] {
     transition: all $easing-in 0.2s;
-    background-color: rgba(239, 239, 239, 0.7);
+    background-color: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
 
     &.no-bg {
@@ -686,16 +686,24 @@ optgroup {
     }
 
     &:focus {
-        outline: 0 solid #eee;
-        background-color: rgba(245, 245, 245, 0.9);
+        outline: 0;
+        background-color: rgba(0, 0, 0, 0.08);
     }
 
     &:hover {
-        background-color: rgba(239, 239, 239, 0.8);
+        background-color: rgba(0, 0, 0, 0.07);
     }
 
     .dark & {
-        background-color: rgba(239, 239, 239, 0.2);
+        background-color: rgba(255, 255, 255, 0.05);
+
+        &:focus {
+            background-color: rgba(255, 255, 255, 0.09);
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
     }
 
     /*

@@ -1514,7 +1514,9 @@ export default {
 }
 
 h1 {
-    font-size: 30px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 
     img {
         vertical-align: middle;
