@@ -40,6 +40,15 @@
                     <span>{{ $t("Dashboard") }}</span>
                 </router-link>
                 <router-link
+                    to="/incidents"
+                    class="side-link"
+                    :class="{ active: $route.path.startsWith('/incidents') }"
+                    :title="$t('Incidents')"
+                >
+                    <font-awesome-icon icon="shield-alt" fixed-width />
+                    <span>{{ $t("Incidents") }}</span>
+                </router-link>
+                <router-link
                     to="/manage-status-page"
                     class="side-link"
                     :class="{ active: $route.path.includes('status-page') }"
@@ -342,7 +351,7 @@ $sidebar-width: 268px;
 main.has-sidebar {
     margin-left: $sidebar-width;
     min-height: 100vh;
-    padding: 28px 20px;
+    padding: 52px 44px;
 }
 
 // Collapse to an icon-only rail on narrow screens (UptimeRobot style).
@@ -414,12 +423,13 @@ $rail-width: 68px;
 
     main.has-sidebar {
         margin-left: $rail-width;
+        padding: 36px 24px;
     }
 }
 
 @media (max-width: 767.98px) {
     main.has-sidebar {
-        padding: 18px 12px;
+        padding: 24px 14px;
     }
 }
 
