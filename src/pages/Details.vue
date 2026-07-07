@@ -159,7 +159,7 @@
                         <span
                             class="badge rounded-pill"
                             :class="'bg-' + status.color"
-                            style="font-size: 30px"
+                            style="font-size: 18px; padding: 8px 20px"
                             data-testid="monitor-status"
                         >
                             {{ status.text }}
@@ -944,22 +944,60 @@ export default {
 
 table {
     font-size: 14px;
+    border-collapse: separate;
+    border-spacing: 0;
 
     tr {
-        transition: all ease-in-out 0.2ms;
+        transition: background-color 0.15s ease;
+    }
+
+    // Soft, rounded row hover — consistent with every other table/list
+    &.table-hover > tbody > tr:hover > td {
+        --bs-table-accent-bg: transparent;
+        background-color: rgba(255, 255, 255, 0.04);
+
+        &:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        &:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+    }
+
+    body:not(.dark) &.table-hover > tbody > tr:hover > td {
+        background-color: rgba(0, 0, 0, 0.035);
     }
 }
 
-.stats p {
-    font-size: 13px;
-    color: $secondary-text;
-}
-
+// UptimeRobot-style stat block: small uppercase label, prominent value
 .stats {
     padding: 10px;
 
     .col {
-        margin: 20px 0;
+        margin: 16px 0;
+    }
+
+    h4 {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: $secondary-text;
+        margin-bottom: 2px;
+    }
+
+    p {
+        font-size: 12px;
+        color: $secondary-text;
+        margin-bottom: 4px;
+    }
+
+    .num {
+        font-size: 22px;
+        font-weight: 700;
     }
 }
 
@@ -970,7 +1008,7 @@ table {
         }
 
         h4 {
-            font-size: 1.1rem;
+            font-size: 12px;
         }
     }
 }

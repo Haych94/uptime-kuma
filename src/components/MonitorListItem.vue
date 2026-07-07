@@ -37,14 +37,17 @@
                             </span>
                             <div class="flex-fill text-truncate" style="min-width: 0">
                                 <div class="text-truncate monitor-name">{{ monitor.name }}</div>
-                                <div v-if="monitor.tags.length > 0" class="tags gap-1">
-                                    <Tag
-                                        v-for="tag in monitor.tags"
-                                        :key="tag"
-                                        :item="tag"
-                                        :size="'sm'"
-                                        :title="tag.name"
-                                    />
+                                <div class="monitor-sub">
+                                    <span class="type-chip">{{ monitor.type }}</span>
+                                    <div v-if="monitor.tags.length > 0" class="tags gap-1">
+                                        <Tag
+                                            v-for="tag in monitor.tags"
+                                            :key="tag"
+                                            :item="tag"
+                                            :size="'sm'"
+                                            :title="tag.name"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -342,6 +345,30 @@ export default {
 .monitor-name {
     font-size: 15px;
     font-weight: 500;
+
+    .dark & {
+        color: #fff;
+    }
+}
+
+.monitor-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.type-chip {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid rgba(139, 147, 161, 0.35);
+    color: $secondary-text;
+    line-height: 1.4;
+    flex-shrink: 0;
 }
 
 .tags {

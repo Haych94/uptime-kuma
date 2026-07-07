@@ -1,55 +1,21 @@
 <template>
     <transition ref="tableContainer" name="slide-fade" appear>
         <div v-if="$route.name === 'DashboardHome'">
-            <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-4">
                 <h1 class="mb-0">
-                    {{ $t("Quick Stats") }}
+                    {{ $t("monitorsHeading") }}
                 </h1>
-                <router-link to="/add" class="btn btn-primary">
+                <router-link to="/add" class="btn btn-blue fw-normal">
                     <font-awesome-icon icon="plus" />
-                    {{ $t("Add New Monitor") }}
+                    <span class="ms-1">{{ $t("New") }}</span>
                 </router-link>
             </div>
 
-            <div class="stat-tiles mb-4">
-                <div class="stat-tile shadow-box" :class="{ active: $root.stats.up > 0 }">
-                    <div class="icon up"><font-awesome-icon icon="heartbeat" /></div>
-                    <div class="tile-body">
-                        <span class="tile-num" :class="$root.stats.up === 0 && 'muted'">{{ $root.stats.up }}</span>
-                        <span class="tile-label">{{ $t("Up") }}</span>
-                    </div>
-                </div>
-                <div class="stat-tile shadow-box" :class="{ active: $root.stats.down > 0 }">
-                    <div class="icon down"><font-awesome-icon icon="times-circle" /></div>
-                    <div class="tile-body">
-                        <span class="tile-num" :class="$root.stats.down > 0 ? 'text-danger' : 'muted'">{{ $root.stats.down }}</span>
-                        <span class="tile-label">{{ $t("Down") }}</span>
-                    </div>
-                </div>
-                <div class="stat-tile shadow-box" :class="{ active: $root.stats.maintenance > 0 }">
-                    <div class="icon maintenance"><font-awesome-icon icon="wrench" /></div>
-                    <div class="tile-body">
-                        <span class="tile-num" :class="$root.stats.maintenance > 0 ? 'text-maintenance' : 'muted'">{{ $root.stats.maintenance }}</span>
-                        <span class="tile-label">{{ $t("Maintenance") }}</span>
-                    </div>
-                </div>
-                <div class="stat-tile shadow-box">
-                    <div class="icon unknown"><font-awesome-icon icon="question-circle" /></div>
-                    <div class="tile-body">
-                        <span class="tile-num muted">{{ $root.stats.unknown }}</span>
-                        <span class="tile-label">{{ $t("Unknown") }}</span>
-                    </div>
-                </div>
-                <div class="stat-tile shadow-box">
-                    <div class="icon pause"><font-awesome-icon icon="pause" /></div>
-                    <div class="tile-body">
-                        <span class="tile-num muted">{{ $root.stats.pause }}</span>
-                        <span class="tile-label">{{ $t("pauseDashboardHome") }}</span>
-                    </div>
-                </div>
-            </div>
+            <div class="row g-4 align-items-start">
+                <div class="col-12 col-xl-8 col-xxl-9">
+                    <MonitorList />
 
-            <div class="shadow-box table-shadow-box table-wrapper">
+                    <div class="shadow-box table-shadow-box table-wrapper mt-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h2 class="mb-0 events-title">{{ $t("Events") }}</h2>
                     <button
@@ -103,13 +69,67 @@
                     </tbody>
                 </table>
 
-                <div class="d-flex justify-content-center kuma_pagination">
-                    <pagination
-                        v-model="page"
-                        :records="importantHeartBeatListLength"
-                        :per-page="perPage"
-                        :options="paginationConfig"
-                    />
+                        <div class="d-flex justify-content-center kuma_pagination">
+                            <pagination
+                                v-model="page"
+                                :records="importantHeartBeatListLength"
+                                :per-page="perPage"
+                                :options="paginationConfig"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-4 col-xxl-3 side-rail">
+                    <div class="shadow-box side-card big-padding">
+                        <h2 class="side-title">{{ $t("Current status") }}</h2>
+                        <div class="status-orb" :class="$root.stats.down > 0 ? 'bad' : 'ok'">
+                            <font-awesome-icon
+                                :icon="$root.stats.down > 0 ? 'exclamation-circle' : 'arrow-alt-circle-up'"
+                            />
+                        </div>
+                        <div class="status-counts">
+                            <div class="count">
+                                <span class="num" :class="{ 'text-danger': $root.stats.down > 0 }">
+                                    {{ $root.stats.down }}
+                                </span>
+                                <span class="lbl">{{ $t("Down") }}</span>
+                            </div>
+                            <div class="count">
+                                <span class="num">{{ $root.stats.up }}</span>
+                                <span class="lbl">{{ $t("Up") }}</span>
+                            </div>
+                            <div class="count">
+                                <span class="num">{{ $root.stats.pause }}</span>
+                                <span class="lbl">{{ $t("filterActivePaused") }}</span>
+                            </div>
+                        </div>
+                        <div v-if="$root.stats.maintenance > 0 || $root.stats.unknown > 0" class="status-counts secondary">
+                            <div v-if="$root.stats.maintenance > 0" class="count">
+                                <span class="num text-maintenance">{{ $root.stats.maintenance }}</span>
+                                <span class="lbl">{{ $t("Maintenance") }}</span>
+                            </div>
+                            <div v-if="$root.stats.unknown > 0" class="count">
+                                <span class="num">{{ $root.stats.unknown }}</span>
+                                <span class="lbl">{{ $t("Unknown") }}</span>
+                            </div>
+                        </div>
+                        <p class="side-caption">{{ $t("monitorsTotal", { count: totalMonitors }) }}</p>
+                    </div>
+
+                    <div class="shadow-box side-card big-padding mt-4">
+                        <h2 class="side-title">{{ $t("Last 24 hours") }}</h2>
+                        <div class="pair-grid">
+                            <div class="pair">
+                                <span class="big text-primary-c">{{ overallUptimeDisplay }}</span>
+                                <span class="lbl">{{ $t("Overall uptime") }}</span>
+                            </div>
+                            <div class="pair">
+                                <span class="big">{{ incidents24h }}</span>
+                                <span class="lbl">{{ $t("Incidents") }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -131,6 +151,8 @@ import Status from "../components/Status.vue";
 import Datetime from "../components/Datetime.vue";
 import Pagination from "v-pagination-3";
 import Confirm from "../components/Confirm.vue";
+import MonitorList from "../components/MonitorList.vue";
+import { DOWN } from "../util.ts";
 
 export default {
     components: {
@@ -138,6 +160,7 @@ export default {
         Status,
         Pagination,
         Confirm,
+        MonitorList,
     },
     props: {
         calculatedHeight: {
@@ -165,6 +188,42 @@ export default {
         },
         tableColumnCount() {
             return this.showGroupColumn ? 5 : 4;
+        },
+
+        totalMonitors() {
+            const s = this.$root.stats;
+            return (s.up || 0) + (s.down || 0) + (s.maintenance || 0) + (s.unknown || 0) + (s.pause || 0);
+        },
+
+        /**
+         * Average of every monitor's 24-hour uptime, as a display string.
+         * @returns {string} e.g. "99.98%", or "N/A" before any data arrives.
+         */
+        overallUptimeDisplay() {
+            const values = Object.entries(this.$root.uptimeList)
+                .filter(([key]) => key.endsWith("_24"))
+                .map(([, value]) => value);
+            if (values.length === 0) {
+                return "N/A";
+            }
+            const avg = (values.reduce((sum, v) => sum + v, 0) / values.length) * 100;
+            return `${parseFloat(avg.toFixed(2))}%`;
+        },
+
+        /**
+         * Number of loaded important events that are DOWN beats from the
+         * last 24 hours. Based on the currently loaded page of events.
+         * @returns {number} Count of down events in the last 24 hours.
+         */
+        incidents24h() {
+            const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+            return this.displayedRecords.filter((beat) => {
+                if (beat.status !== DOWN) {
+                    return false;
+                }
+                const t = Date.parse(String(beat.time).replace(" ", "T"));
+                return !isNaN(t) && t >= dayAgo;
+            }).length;
         },
     },
     watch: {
@@ -322,110 +381,151 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/vars";
 
-.stat-tiles {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 16px;
-
-    @media (max-width: 1100px) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+// Right rail — UptimeRobot-style summary cards
+.side-card {
+    .side-title {
+        font-size: 17px;
+        margin-bottom: 18px;
     }
 
-    @media (max-width: 600px) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-}
-
-.stat-tile {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 18px 20px;
-    min-width: 0;
-
-    @media (max-width: 600px) {
-        padding: 14px;
-        gap: 10px;
-
-        .icon {
-            width: 38px;
-            height: 38px;
-            font-size: 16px;
-        }
-    }
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-    &:hover {
-        transform: translateY(-2px);
-    }
-
-    .icon {
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+    .status-orb {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 24px;
+        margin: 6px auto 18px;
 
-        &.up {
+        &.ok {
+            background: rgba(59, 214, 113, 0.15);
             color: $primary;
-            background: rgba(59, 214, 113, 0.13);
         }
-        &.down {
+
+        &.bad {
+            background: rgba(220, 53, 69, 0.15);
             color: $danger;
-            background: rgba(220, 53, 69, 0.13);
         }
-        &.maintenance {
-            color: $maintenance;
-            background: rgba(23, 71, 245, 0.12);
+    }
+
+    .status-counts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        text-align: center;
+        gap: 8px;
+
+        &.secondary {
+            margin-top: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        &.unknown,
-        &.pause {
+
+        .count {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .num {
+            font-size: 22px;
+            font-weight: 700;
+
+            .dark & {
+                color: #fff;
+            }
+
+            &.text-danger {
+                color: $danger !important;
+            }
+        }
+
+        .lbl {
+            font-size: 12.5px;
             color: $secondary-text;
-            background: rgba(139, 147, 161, 0.15);
+            margin-top: 2px;
         }
     }
 
-    .tile-body {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.1;
-    }
-
-    .tile-num {
-        font-size: 26px;
-        font-weight: 700;
-
-        &.muted {
-            color: $secondary-text;
-        }
-    }
-
-    .tile-label {
-        font-size: 13px;
+    .side-caption {
+        text-align: center;
         color: $secondary-text;
-        margin-top: 2px;
+        font-size: 13px;
+        margin: 16px 0 0;
+    }
+
+    .pair-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+
+        .pair {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .big {
+            font-size: 22px;
+            font-weight: 700;
+
+            .dark & {
+                color: #fff;
+            }
+
+            &.text-primary-c {
+                color: $primary;
+
+                .dark & {
+                    color: $primary;
+                }
+            }
+        }
+
+        .lbl {
+            font-size: 12.5px;
+            color: $secondary-text;
+            margin-top: 2px;
+        }
     }
 }
 
-.shadow-box:not(.stat-tile) {
+.shadow-box:not(.side-card) {
     padding: 20px;
 }
 
 table {
     font-size: 14px;
+    border-collapse: separate;
+    border-spacing: 0;
 
     tr {
-        transition: all ease-in-out 0.2ms;
+        transition: background-color 0.15s ease;
     }
 
     td {
         padding-top: 12px;
         padding-bottom: 12px;
         vertical-align: middle;
+    }
+
+    // Soft, rounded row hover to match the monitor list rows
+    &.table-hover > tbody > tr:hover > td {
+        --bs-table-accent-bg: transparent;
+        background-color: rgba(255, 255, 255, 0.04);
+
+        &:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        &:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+    }
+
+    body:not(.dark) &.table-hover > tbody > tr:hover > td {
+        background-color: rgba(0, 0, 0, 0.035);
     }
 
     @media (max-width: 550px) {

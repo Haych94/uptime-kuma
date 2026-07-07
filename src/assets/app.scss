@@ -181,24 +181,47 @@ optgroup {
     padding: 4px 12px;
 }
 
+// Primary buttons use the UptimeRobot-style indigo, white text, site-wide
 .btn-primary {
-    color: white;
+    color: #fff;
+    background-color: $accent-blue;
+    border-color: $accent-blue;
 
     &:hover,
     &:active,
     &:focus,
     &.active {
-        color: white;
-        background-color: darken($primary, 6%);
-        border-color: darken($primary, 6%);
+        color: #fff;
+        background-color: darken($accent-blue, 7%);
+        border-color: darken($accent-blue, 7%);
     }
 
     &:focus-visible {
-        box-shadow: 0 0 0 3px rgba(59, 214, 113, 0.35);
+        box-shadow: 0 0 0 3px rgba($accent-blue, 0.35);
     }
 
     .dark & {
-        color: $dark-font-color2;
+        color: #fff;
+    }
+}
+
+// UptimeRobot-style indigo action button (used for "+ New" style CTAs)
+.btn-blue {
+    color: #fff;
+    background-color: $accent-blue;
+    border-color: $accent-blue;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &.active {
+        color: #fff;
+        background-color: darken($accent-blue, 7%);
+        border-color: darken($accent-blue, 7%);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 3px rgba($accent-blue, 0.35);
     }
 }
 
@@ -339,6 +362,17 @@ optgroup {
 .dark {
     background-color: #0f141d;
     color: $dark-font-color;
+
+    // Primary text (headings) is pure white, matching the brand wordmark;
+    // body/secondary text stays $dark-font-color.
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: #fff;
+    }
 
     mark,
     .mark {
@@ -496,7 +530,7 @@ optgroup {
     .monitor-list {
         .item {
             &:hover {
-                background-color: $dark-bg2;
+                background-color: rgba(255, 255, 255, 0.04);
             }
 
             &.active {
@@ -605,7 +639,7 @@ optgroup {
         }
 
         &:hover {
-            background-color: $highlight-white;
+            background-color: rgba(0, 0, 0, 0.035);
         }
 
         &.active {

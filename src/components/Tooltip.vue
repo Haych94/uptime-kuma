@@ -10,10 +10,10 @@
             <div class="tooltip-content">
                 <slot :content="content">
                     <!-- Default content if no slot provided -->
-                    <div class="tooltip-status" :class="statusClass">
-                        {{ statusText }}
-                    </div>
                     <div class="tooltip-time">{{ timeText }}</div>
+                    <div class="tooltip-status" :class="statusClass">
+                        {{ statusText }}<span v-if="content?.ping != null" class="tooltip-ping"> • {{ content.ping }} ms</span>
+                    </div>
                     <div v-if="content?.msg" class="tooltip-message">{{ content.msg }}</div>
                 </slot>
             </div>
@@ -125,10 +125,10 @@ export default {
         backdrop-filter: blur(8px);
         border: 1px solid rgba(75, 85, 99, 0.3);
         border-radius: 8px;
-        padding: 8px 12px;
+        padding: 9px 13px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-        min-width: 120px;
-        text-align: center;
+        min-width: 150px;
+        text-align: left;
         position: relative;
 
         &::before {
@@ -143,11 +143,14 @@ export default {
         }
 
         .tooltip-status {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 15px;
+            font-weight: 700;
+
+            .tooltip-ping {
+                color: #d1d5db;
+                font-weight: 500;
+                font-size: 13px;
+            }
 
             &.status-up {
                 color: $primary;
@@ -171,9 +174,9 @@ export default {
         }
 
         .tooltip-time {
-            color: #d1d5db;
-            font-size: 13px;
-            margin-bottom: 2px;
+            color: #aeb7c5;
+            font-size: 12.5px;
+            margin-bottom: 3px;
         }
 
         .tooltip-message {

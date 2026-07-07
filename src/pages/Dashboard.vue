@@ -54,6 +54,6 @@ export default {
 
 <style lang="scss" scoped>
 .container-fluid {
-    width: 98%;
+    width: 100%;
 }
 </style>
