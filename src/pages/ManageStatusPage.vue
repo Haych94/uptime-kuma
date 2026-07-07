@@ -5,10 +5,10 @@
                 <h1 class="mb-0">
                     {{ $t("Status Pages") }}
                 </h1>
-                <router-link to="/add-status-page" class="btn btn-primary">
+                <button class="btn btn-primary" @click="showAddDialog">
                     <font-awesome-icon icon="plus" />
                     {{ $t("New Status Page") }}
-                </router-link>
+                </button>
             </div>
 
             <div class="shadow-box">
@@ -58,9 +58,69 @@
     >
         {{ $t("deleteStatusPageMsg") }}
     </Confirm>
+
+    <!-- Create Status Page dialog -->
+    <div ref="addModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <form class="modal-content" @submit.prevent="createStatusPage">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ $t("Add New Status Page") }}</h5>
+                    <button type="button" class="btn-close" @click="hideAddDialog" />
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new-sp-name" class="form-label">{{ $t("Name") }}</label>
+                        <input
+                            id="new-sp-name"
+                            ref="nameInput"
+                            v-model="newTitle"
+                            type="text"
+                            class="form-control"
+                            required
+                            data-testid="name-input"
+                            @input="onTitleInput"
+                        />
+                    </div>
+                    <div class="mb-2">
+                        <label for="new-sp-slug" class="form-label">{{ $t("Slug") }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text">/status/</span>
+                            <input
+                                id="new-sp-slug"
+                                v-model="newSlug"
+                                type="text"
+                                class="form-control slug-input"
+                                autocapitalize="none"
+                                required
+                                data-testid="slug-input"
+                                @input="slugTouched = true"
+                            />
+                        </div>
+                        <div class="form-text mt-2">
+                            {{ $t("Accept characters:") }} <mark>a-z</mark> <mark>0-9</mark> <mark>-</mark>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-normal" @click="hideAddDialog">
+                        {{ $t("Cancel") }}
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        :disabled="processing"
+                        data-testid="submit-button"
+                    >
+                        {{ $t("Next") }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </template>
 
 <script>
+import { Modal } from "bootstrap";
 import Confirm from "../components/Confirm.vue";
 import { getResBaseURL } from "../util-frontend";
 
@@ -71,11 +131,72 @@ export default {
     data() {
         return {
             selectedStatusSlug: "",
+            newTitle: "",
+            newSlug: "",
+            slugTouched: false,
+            processing: false,
+            addModal: null,
         };
     },
     computed: {},
-    mounted() {},
+    mounted() {
+        this.addModal = new Modal(this.$refs.addModal);
+    },
     methods: {
+        /**
+         * Open the create-status-page dialog, resetting its fields.
+         * @returns {void}
+         */
+        showAddDialog() {
+            this.newTitle = "";
+            this.newSlug = "";
+            this.slugTouched = false;
+            this.processing = false;
+            this.addModal.show();
+            this.$nextTick(() => this.$refs.nameInput?.focus());
+        },
+        hideAddDialog() {
+            this.addModal.hide();
+        },
+        /**
+         * Turn text into a valid slug: lowercase, a-z/0-9/dash only, no
+         * leading/trailing or consecutive dashes.
+         * @param {string} text Source text.
+         * @returns {string} Slug.
+         */
+        slugify(text) {
+            return String(text)
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, "");
+        },
+        /**
+         * Auto-fill the slug from the name until the user edits the slug directly.
+         * @returns {void}
+         */
+        onTitleInput() {
+            if (!this.slugTouched) {
+                this.newSlug = this.slugify(this.newTitle);
+            }
+        },
+        /**
+         * Create the status page and open it in the editor.
+         * @returns {void}
+         */
+        createStatusPage() {
+            this.processing = true;
+            this.$root.getSocket().emit("addStatusPage", this.newTitle, this.newSlug, (res) => {
+                this.processing = false;
+                if (res.ok) {
+                    location.href = "/status/" + res.slug + "?edit";
+                } else if (res.msg && res.msg.includes("UNIQUE constraint")) {
+                    this.$root.toastError("The slug is already taken. Please choose another slug.");
+                } else {
+                    this.$root.toastRes(res);
+                }
+            });
+        },
         /**
          * Get the correct URL for the icon
          * @param {string} icon Path for icon
@@ -108,6 +229,10 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/vars.scss";
+
+.slug-input {
+    text-transform: lowercase;
+}
 
 .item {
     display: flex;
