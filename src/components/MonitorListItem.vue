@@ -39,6 +39,7 @@
                                 <div class="text-truncate monitor-name">{{ monitor.name }}</div>
                                 <div class="monitor-sub">
                                     <span class="type-chip">{{ monitor.type }}</span>
+                                    <span v-if="statusDurationText" class="status-duration">{{ statusDurationText }}</span>
                                     <div v-if="monitor.tags.length > 0" class="tags gap-1">
                                         <Tag
                                             v-for="tag in monitor.tags"
@@ -57,7 +58,15 @@
                         :key="$root.userHeartbeatBar"
                         class="col-3 col-xl-6"
                     >
-                        <HeartbeatBar ref="heartbeatBar" size="small" :monitor-id="monitor.id" />
+                        <div class="d-flex align-items-center justify-content-end gap-2">
+                            <span class="interval-badge d-none d-md-inline-flex">
+                                <font-awesome-icon icon="sync-alt" />
+                                {{ intervalText }}
+                            </span>
+                            <div class="hb-fill">
+                                <HeartbeatBar ref="heartbeatBar" size="small" :monitor-id="monitor.id" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -93,6 +102,7 @@ import HeartbeatBar from "../components/HeartbeatBar.vue";
 import Tag from "../components/Tag.vue";
 import Uptime from "../components/Uptime.vue";
 import { getMonitorRelativeURL } from "../util.ts";
+import { timeDurationFormatter } from "../util-frontend.js";
 
 export default {
     name: "MonitorListItem",
@@ -179,6 +189,43 @@ export default {
                 c["col-xl-6"] = true;
             }
             return c;
+        },
+
+        /** Human-readable check interval, e.g. "5 min". @returns {string} Interval text. */
+        intervalText() {
+            return timeDurationFormatter.secondsToHumanReadableFormat(this.monitor.interval);
+        },
+
+        /**
+         * Text like "Up 2 hr, 40 min" / "Down 5 min" describing how long the
+         * monitor has been in its current status. Derived from the recent
+         * heartbeat window; empty if there's no data or status is not up/down.
+         * @returns {string} Status duration text.
+         */
+        statusDurationText() {
+            const beats = this.$root.heartbeatList[this.monitor.id];
+            if (!beats || beats.length === 0) {
+                return "";
+            }
+
+            const currentStatus = beats[beats.length - 1].status;
+            if (currentStatus !== 1 && currentStatus !== 0) {
+                return "";
+            }
+
+            // Walk back to the first beat of the current continuous run
+            let since = beats[beats.length - 1].time;
+            for (let i = beats.length - 1; i >= 0; i--) {
+                if (beats[i].status === currentStatus) {
+                    since = beats[i].time;
+                } else {
+                    break;
+                }
+            }
+
+            const ms = Date.now() - new Date(String(since).replace(" ", "T") + "Z").getTime();
+            const label = currentStatus === 1 ? this.$t("Up") : this.$t("Down");
+            return `${label} ${this.humanizeDuration(ms)}`;
         },
     },
     watch: {
@@ -320,6 +367,29 @@ export default {
             return getMonitorRelativeURL(id);
         },
         /**
+         * Format a millisecond duration like UptimeRobot: "2 hr, 40 min".
+         * @param {number} ms Duration in milliseconds.
+         * @returns {string} Human-readable duration.
+         */
+        humanizeDuration(ms) {
+            const totalMinutes = Math.floor(ms / 60000);
+            const days = Math.floor(totalMinutes / 1440);
+            const hours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+
+            if (days > 0) {
+                return `${days} ${days > 1 ? "days" : "day"}, ${hours} hr`;
+            }
+            if (hours > 0) {
+                return `${hours} hr, ${minutes} min`;
+            }
+            if (minutes > 0) {
+                return `${minutes} min`;
+            }
+            return "<1 min";
+        },
+
+        /**
          * Toggle selection of monitor
          * @returns {void}
          */
@@ -369,6 +439,30 @@ export default {
     color: $secondary-text;
     line-height: 1.4;
     flex-shrink: 0;
+}
+
+.status-duration {
+    font-size: 13px;
+    color: $secondary-text;
+    white-space: nowrap;
+}
+
+.interval-badge {
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: $secondary-text;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg {
+        font-size: 11px;
+    }
+}
+
+.hb-fill {
+    flex: 1;
+    min-width: 0;
 }
 
 .tags {
